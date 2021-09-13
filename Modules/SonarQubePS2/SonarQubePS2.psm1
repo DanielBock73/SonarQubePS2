@@ -19,10 +19,10 @@ class Authentication {
 
     $encodedString = $null
     if ($this.Token) {
-      $encodedString = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$($username):$($password)")) 
+      $encodedString = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$($password):"))
     }
     else {
-      $encodedString = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$($password):"))
+      $encodedString = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$($username):$($password)")) 
     }
     
     $Header = @{

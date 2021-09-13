@@ -4,6 +4,35 @@ if (-not (Test-Path $script:serverConfig)) {
 }
 $script:SonarQubeServerUrl = [Uri](Get-Content $script:serverConfig)
 
+class Authentication {
+  [PSCredential]$Credential
+  [bool]$Token
+
+  Authentication([PSCredential]$Credential, [bool]$Token) {
+    $this.Credential = $Credential
+    $this.Token = $Token
+  }
+
+  [hashtable]GetAuthorizationHeader() {
+    $username = $this.Credential.UserName
+    $password = $this.Credential.GetNetworkCredential().Password
+
+    $encodedString = $null
+    if ($this.Token) {
+      $encodedString = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$($username):$($password)")) 
+    }
+    else {
+      $encodedString = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$($password):"))
+    }
+    
+    $Header = @{
+      Authorization = "Basic $encodedString"
+    }
+    
+    return $Header  
+  }
+}
+
 function Set-SonarQubeConfigServer {
   [CmdletBinding()]
   [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseShouldProcessForStateChangingFunctions', '')]
@@ -57,12 +86,12 @@ function New-SonarQubeSession {
   [CmdletBinding()]
   [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseShouldProcessForStateChangingFunctions', '')]
   param(
-    [Parameter(ParameterSetName = "credentials", Mandatory = $True)]
+    [Parameter(Mandatory = $True)]
     [System.Management.Automation.PSCredential]
     [System.Management.Automation.Credential()]
     $Credential,
-    [Parameter(ParameterSetName = "token", Mandatory = $True)]
-    [string]$Token
+    [switch]
+    $Token
   )
 
   begin {
@@ -74,27 +103,15 @@ function New-SonarQubeSession {
     Write-Debug "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
 
     Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking SonarQubeMethod with `$parameter"
-    switch ($PSBoundParameters.Keys) {
-      'Credential' { 
-        $password = $Credential.GetNetworkCredential().Password
-        $username = $Credential.UserName
-        $encodedString = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$($username):$($password)")) 
-      }
-      'Token' { $encodedString = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("$($Token):")) }
-    }
-
-    $Header = @{
-      Authorization = "Basic $encodedString"
-    }
     
     if ($MyInvocation.MyCommand.Module.PrivateData) {
       Write-Debug "[$($MyInvocation.MyCommand.Name)] Adding session result to existing module PrivateData"
-      $MyInvocation.MyCommand.Module.PrivateData.Session = $Header
+      $MyInvocation.MyCommand.Module.PrivateData.Session = [Authentication]::New($Credential, $Token)
     }
     else {
       Write-Debug "[$($MyInvocation.MyCommand.Name)] Creating module PrivateData"
       $MyInvocation.MyCommand.Module.PrivateData = @{
-        'Session' = $Header
+        'Session' = [Authentication]::New($Credential, $Token)
       }
     }
   }
@@ -123,6 +140,12 @@ function New-SonarQubeProject {
       Whether the created project should be visible to everyone, or only specific user/groups.
       If no visibility is specified, the default project visibility will be used.
 
+    .PARAMETER Credential
+      Credentials to use to connect to SonarQube. If token is specified, this password will use as token.
+
+    .PARAMETER Token
+      Define that the password should used as an token
+
     .EXAMPLE
         Set-SonarQubeConfigServer -Server 'https://localhost:9000/'
         New-SonarQubeSession -Token 'XXXXXXX'
@@ -138,7 +161,12 @@ function New-SonarQubeProject {
     $ProjectKey,
     [ValidateSet('private', 'public')]
     [string]
-    $Visibility
+    $Visibility,
+    [System.Management.Automation.PSCredential]
+    [System.Management.Automation.Credential()]
+    $Credential,
+    [switch]
+    $Token
   )
     
   begin {
@@ -156,7 +184,14 @@ function New-SonarQubeProject {
       name    = $Name
     }
 
-    $Header = $MyInvocation.MyCommand.Module.PrivateData.Session
+    $Header = $null
+
+    if ($PSCmdlet.MyInvocation.BoundParameters.ContainsKey('Credential')) {
+      $Header = [Authentication]::New($Credential, $Token).GetAuthorizationHeader()
+    }
+    else {
+      $Header = $MyInvocation.MyCommand.Module.PrivateData.Session.GetAuthorizationHeader()
+    }
     
     $Result = Invoke-RestMethod -Method 'Post' -Uri $ResourceUri -Body $Body -Headers $Header
 

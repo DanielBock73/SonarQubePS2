@@ -86,12 +86,12 @@ function New-SonarQubeSession {
   [CmdletBinding()]
   [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseShouldProcessForStateChangingFunctions', '')]
   param(
-    [Parameter(ParameterSetName = "credentials", Mandatory = $True)]
+    [Parameter(Mandatory = $True)]
     [System.Management.Automation.PSCredential]
     [System.Management.Automation.Credential()]
     $Credential,
-    [Parameter(ParameterSetName = "token", Mandatory = $True)]
-    [string]$Token
+    [switch]
+    $Token
   )
 
   begin {
@@ -165,7 +165,7 @@ function New-SonarQubeProject {
     [System.Management.Automation.PSCredential]
     [System.Management.Automation.Credential()]
     $Credential,
-    [string]
+    [switch]
     $Token
   )
     

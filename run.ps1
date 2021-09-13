@@ -1,4 +1,4 @@
-Import-Module -Name $PSScriptRoot/src/SonarQubePS2.psm1 -Force
+Import-Module -Name $PSScriptRoot/Modules/SonarQubePS2/SonarQubePS2.psm1 -Force
 
 # $VerbosePreference = "Continue"
 # $DebugPreference = "Continue"
@@ -9,7 +9,7 @@ Import-Module -Name $PSScriptRoot/src/SonarQubePS2.psm1 -Force
 if ($Cred -eq $null) {
   $Cred = (Get-Credential -UserName 'admin')
 }
-New-SonarQubeSession -Credential $Cred
+New-SonarQubeSession -Credential $Cred 
 
 New-SonarQubeProject -Name "Test $([Guid]::NewGuid())" -ProjectKey "5.5.5:Projekt_$([Guid]::NewGuid() -replace "-", '')"
 

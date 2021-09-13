@@ -12,7 +12,7 @@
 RootModule = 'SonarQubePS2.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.1'
+ModuleVersion = '0.0.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -30,7 +30,7 @@ CompanyName = ''
 Copyright = '(c) Daniel Bock. All rights reserved.'
 
 # Description of the functionality provided by this module
-# Description = ''
+Description = 'SonarQubePS2 is a Windows PowerShell module to interact with SonarSource via a REST API, while maintaining a consistent PowerShell look and feel.'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '7.0'

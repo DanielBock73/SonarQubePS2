@@ -34,4 +34,4 @@ jobs:
       shell: pwsh
       run: |
         Update-ModuleManifest -Path ./Modules/SonarQubePS2/SonarQubePS2.psd1 -ModuleVersion ${{ steps.gitversion.outputs.MajorMinorPatch }}
-        Publish-Module -Path $ModuleFolder -Repository $HilscherNugetServerName -NuGetApiKey '${{ secrets.NuGetApiKey }}'
+        Publish-Module -Path ./Modules/SonarQubePS2/ -NuGetApiKey '${{ secrets.NuGetApiKey }}'

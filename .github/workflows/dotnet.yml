@@ -33,5 +33,5 @@ jobs:
     - name:  "Create and publish module."
       shell: pwsh
       run: |
-        Update-ModuleManifest -Path ./SonarQubePS2.psd1 -ModuleVersion ${{ steps.gitversion.outputs.MajorMinorPatch }}
+        Update-ModuleManifest -Path ./Modules/SonarQubePS2/SonarQubePS2.psd1 -ModuleVersion ${{ steps.gitversion.outputs.MajorMinorPatch }}
         Publish-Module -Path $ModuleFolder -Repository $HilscherNugetServerName -NuGetApiKey '${{ secrets.NuGetApiKey }}'

@@ -6,7 +6,7 @@ SonarQubePS2 is a Windows PowerShell module to interact with SonarSource via a R
 
 ### Installation
 
-Install SonarQubePS2 from the [PowerShell Gallery]! `Install-Module` requires PowerShellGet (included in PS v7)
+Install SonarQubePS2 from the [PowerShell Gallery][1] `Install-Module` requires PowerShellGet (included in PS v7)
 
 ```powershell
 # One time only install:
@@ -67,3 +67,6 @@ Hopefully this is obvious, but:
 
 + https://docs.sonarqube.org/latest/extend/web-api/
 + https://next.sonarqube.com/sonarqube/web_api/api/projects
++ https://github.com/DanielBock73/SonarQubePS2
+
+[1]: https://www.powershellgallery.com/packages/SonarQubePS2
